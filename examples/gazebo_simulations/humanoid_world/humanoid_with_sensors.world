@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <world name="humanoid_with_sensors_world">
+
+    <!-- Basic Lighting -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <!-- Ground Plane -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <!-- Humanoid Robot with Sensors -->
+    <include>
+      <uri>model://humanoid_robot</uri>
+      <pose>0 0 0.5 0 0 0</pose>
+    </include>
+
+    <gui>
+      <camera name="user_camera">
+        <pose>2 2 2 0 0.5 -2.0</pose>
+      </camera>
+    </gui>
+
+  </world>
+</sdf>

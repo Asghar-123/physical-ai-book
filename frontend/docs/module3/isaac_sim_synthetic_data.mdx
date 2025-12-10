@@ -1,0 +1,88 @@
+---
+sidebar_position: 1
+title: Isaac Sim for Synthetic Data
+---
+
+# Isaac Sim: Synthetic Data Generation
+
+**NVIDIA Isaac Sim** is a scalable robotics simulation application and synthetic data generation tool that powers AI-based robots. Built on NVIDIA Omniverse™, it provides a photorealistic, physically accurate virtual environment for developing, testing, and training AI robots. For humanoid robotics, Isaac Sim is particularly powerful for generating large, high-quality, labeled datasets for training perception models, a process known as synthetic data generation.
+
+## Why Synthetic Data?
+
+Training deep learning models for perception tasks like object detection, segmentation, and pose estimation requires vast amounts of labeled data. Acquiring and manually annotating real-world data is often time-consuming, expensive, and sometimes impractical, especially for rare or dangerous scenarios. Synthetic data generation offers a solution by creating this data in a simulated environment.
+
+Key advantages include:
+-   **Perfect Labels**: Automatically generate pixel-perfect annotations for object bounding boxes, semantic segmentation, depth, and more.
+-   **Scalability**: Generate massive datasets quickly, covering a wide range of environmental conditions, lighting, and object configurations.
+-   **Domain Randomization**: Systematically vary simulation parameters (e.g., lighting, textures, object positions) to create a diverse dataset that helps models generalize better to real-world conditions.
+-   **Safety**: Simulate hazardous scenarios without risking damage to physical robots or the environment.
+
+## Isaac Sim for Data Generation
+
+Isaac Sim provides a suite of tools to facilitate synthetic data generation:
+
+-   **Replicator**: A powerful module within Isaac Sim that allows for the programmatic creation and randomization of simulation scenes. With Replicator, you can script complex scenarios, control object placements, and define the data to be captured.
+-   **Python Scripting**: Isaac Sim is fully scriptable with Python, allowing for automated control over every aspect of the simulation, from loading assets to capturing sensor data and annotations.
+-   **ROS 2 Integration**: Isaac Sim can be integrated with ROS 2, allowing you to trigger data capture and control the simulation from your ROS 2 nodes.
+
+## Example: Generating Object Detection Data
+
+Let's outline a simplified workflow for generating synthetic data for training an object detector using Isaac Sim.
+
+### 1. Setup the Scene
+
+-   **Create a Scene**: Start with a new stage in Isaac Sim.
+-   **Add Objects**: Populate the scene with objects of interest (e.g., cups, tools, furniture). You can use assets from the Omniverse library or import your own.
+-   **Add a Robot/Camera**: Place a camera in the scene that will capture the images. This could be attached to a simulated robot or be a free-floating camera.
+
+### 2. Use Replicator for Randomization
+
+Create a Python script to use the Replicator API. This script will:
+-   **Randomize Object Poses**: Move and rotate objects to different positions in each frame.
+-   **Randomize Lighting**: Change the color, intensity, and position of lights.
+-   **Randomize Textures**: Apply different materials and textures to objects and the background.
+
+```python
+# Example Replicator script snippet
+import omni.replicator.core as rep
+
+# Assume 'objects' is a list of prims to randomize
+with rep.trigger.on_frame():
+    with rep.randomizer.collection(objects):
+        rep.modify.pose(
+            position=rep.distribution.uniform((-2, -2, 0), (2, 2, 0)),
+            rotation=rep.distribution.uniform((0, 0, 0), (0, 0, 180)),
+        )
+
+# Create a writer to save the data
+writer = rep.Writer(
+    "ObjectDetectionWriter",
+    output_dir="_output",
+    bbox_height_threshold=16,
+    bbox_width_threshold=16,
+)
+```
+
+### 3. Attach Annotators
+
+Replicator uses **annotators** to generate ground truth labels for the captured images. For object detection, you would typically use:
+-   **RGB Annotator**: Captures the color images.
+-   **Bounding Box 2D Tight Annotator**: Generates tight 2D bounding boxes around the objects of interest.
+
+```python
+# Attach annotators to the camera
+camera = rep.get.prim_at_path("/World/Camera")
+rgb_annotator = rep.AnnotatorRegistry.get_annotator("rgb")
+bbox_annotator = rep.AnnotatorRegistry.get_annotator("bounding_box_2d_tight")
+
+rgb_annotator.attach([camera])
+bbox_annotator.attach([camera])
+```
+
+### 4. Run the Simulation
+
+Run the Replicator graph. Isaac Sim will then generate a sequence of images along with the corresponding bounding box annotations in a format like KITTI or COCO, ready for training a model.
+
+## Next Steps
+
+With a foundational understanding of synthetic data generation in Isaac Sim, the next chapter will explore how to use the NVIDIA Isaac ROS stack to process this data and perform advanced perception tasks like Visual SLAM and object detection, bridging the gap between simulation and real-world application.

@@ -1,0 +1,137 @@
+---
+sidebar_position: 3
+title: Python rclpy Control
+---
+
+# Python `rclpy` Control: Building Robot Controllers
+
+`rclpy` is the Python client library for ROS 2, enabling developers to write ROS 2 nodes in Python. It provides a convenient and high-level interface to interact with ROS 2 concepts like nodes, topics, services, and actions. This chapter will guide you through creating Python-based robot controllers using `rclpy`.
+
+## Creating a Basic ROS 2 Python Node
+
+Every ROS 2 application starts with a node. A node is essentially a Python script that uses `rclpy` to initialize itself, create publishers, subscribers, service servers, or clients, and then spin to process callbacks.
+
+### 1. Initialize `rclpy`
+
+The `rclpy.init()` function initializes the ROS 2 client library. This must be called before any other `rclpy` function. `rclpy.shutdown()` should be called when the program exits to clean up resources.
+
+### 2. Create a Node
+
+Use `rclpy.create_node('node_name')` to instantiate a new node. The node name should be unique within the ROS 2 graph to avoid conflicts.
+
+### 3. Spin the Node
+
+`rclpy.spin()` is a blocking call that keeps the node alive and processing events (like incoming messages or service requests) until the node is explicitly shut down. For more control, `rclpy.spin_once()` or custom executors can be used.
+
+```python
+# frontend/docs/module1/code_examples/minimal_node.py
+import rclpy
+from rclpy.node import Node
+
+def main(args=None):
+    rclpy.init(args=args) # Initialize the ROS 2 Python client library
+    node = rclpy.create_node('minimal_node') # Create a node with the name 'minimal_node'
+    node.get_logger().info('Minimal Node started!')
+    rclpy.spin(node) # Keep the node alive and processing events
+    node.destroy_node()
+    rclpy.shutdown() # Shutdown the ROS 2 Python client library
+
+if __name__ == '__main__':
+    main()
+```
+
+## Publishers and Subscribers
+
+### Publisher
+
+A publisher sends messages to a topic. To create a publisher, you need:
+- The message type (e.g., `std_msgs.msg.String`, `geometry_msgs.msg.Twist`).
+- The topic name.
+- The QoS profile (Quality of Service), which defines how messages are delivered.
+
+```python
+# frontend/docs/module1/code_examples/minimal_publisher.py
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import String
+
+class MinimalPublisher(Node):
+
+    def __init__(self):
+        super().__init__('minimal_publisher')
+        self.publisher_ = self.create_publisher(String, 'topic', 10) # Create a publisher
+        timer_period = 0.5  # seconds
+        self.timer = self.create_timer(timer_period, self.timer_callback) # Create a timer to publish periodically
+        self.i = 0
+
+    def timer_callback(self):
+        msg = String()
+        msg.data = 'Hello ROS 2: %d' % self.i
+        self.publisher_.publish(msg)
+        self.get_logger().info('Publishing: "%s"' % msg.data)
+        self.i += 1
+
+def main(args=None):
+    rclpy.init(args=args)
+    minimal_publisher = MinimalPublisher()
+    rclpy.spin(minimal_publisher)
+    minimal_publisher.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+```
+
+### Subscriber
+
+A subscriber receives messages from a topic. To create a subscriber, you need:
+- The message type.
+- The topic name.
+- A callback function that will be executed when a message is received.
+
+```python
+# frontend/docs/module1/code_examples/minimal_subscriber.py
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import String
+
+class MinimalSubscriber(Node):
+
+    def __init__(self):
+        super().__init__('minimal_subscriber')
+        self.subscription = self.create_subscription(
+            String,
+            'topic',
+            self.listener_callback, # Register the callback function
+            10)
+        self.subscription  # prevent unused variable warning
+
+    def listener_callback(self, msg):
+        self.get_logger().info('I heard: "%s"' % msg.data)
+
+def main(args=None):
+    rclpy.init(args=args)
+    minimal_subscriber = MinimalSubscriber()
+    rclpy.spin(minimal_subscriber)
+    minimal_subscriber.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+```
+
+## Services and Clients
+
+### Service Server
+
+A service server responds to requests. You define a service callback function that takes a request and returns a response.
+
+### Service Client
+
+A service client sends a request and waits for a response.
+
+These patterns are crucial for tasks like querying robot state or triggering specific actions that require confirmation.
+
+## Next Steps
+
+With the understanding of `rclpy` basics, you are now equipped to create functional ROS 2 Python nodes. The next step is to integrate these concepts into practical robot control examples, such as controlling the joints of the humanoid URDF model developed in the previous chapter, which will be covered in the accompanying example ROS 2 package.

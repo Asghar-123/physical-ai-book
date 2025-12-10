@@ -1,0 +1,77 @@
+---
+sidebar_position: 2
+title: Isaac ROS Perception
+---
+
+# Isaac ROS Perception Stack
+
+The **NVIDIA Isaac ROS** stack is a collection of hardware-accelerated packages for perception, navigation, and manipulation, designed to leverage the power of NVIDIA GPUs and Jetson platforms. These packages are highly optimized and provide a significant performance boost for computationally intensive robotics tasks, making them ideal for humanoid robots that need to process large amounts of sensor data in real-time.
+
+## Key Isaac ROS Packages
+
+Isaac ROS provides a suite of GEMs (GPU-accelerated modules) for various perception tasks. Here are some of the most relevant for humanoid robotics:
+
+### Isaac ROS VSLAM (Visual SLAM)
+
+**Visual Simultaneous Localization and Mapping (VSLAM)** is the process of estimating a robot's pose (position and orientation) while simultaneously creating a map of the surrounding environment, using only camera data. Isaac ROS VSLAM is a hardware-accelerated package that provides real-time, robust tracking and mapping capabilities.
+
+Key features:
+-   **High Performance**: Runs significantly faster than CPU-based SLAM systems.
+-   **Robustness**: Handles challenging scenarios with fast motion and dynamic environments.
+-   **Integration**: Natively integrates with ROS 2, publishing standard `tf` and `nav_msgs/Odometry` messages.
+
+### Isaac ROS Nav2
+
+**Nav2** is the standard navigation stack in ROS 2, providing a complete solution for autonomous robot navigation. Isaac ROS provides hardware-accelerated versions of several Nav2 components, enabling faster and more efficient path planning and execution. This includes:
+-   **Costmap Generation**: Accelerated generation of costmaps from sensor data.
+-   **Path Planners**: GPU-accelerated versions of popular path planning algorithms.
+
+### Isaac ROS Object Detection
+
+**Object Detection** is a critical perception task that involves identifying and localizing objects within an image. Isaac ROS provides optimized packages for running popular deep learning-based object detectors like YOLO and SSD on NVIDIA hardware.
+
+Key features:
+-   **High Throughput**: Process camera streams at high frame rates.
+-   **Pre-trained Models**: Comes with support for models pre-trained on large datasets like COCO.
+-   **TensorRT Optimization**: Models are optimized with NVIDIA TensorRT™ for maximum inference performance.
+
+## Example Workflow: VSLAM with Isaac ROS
+
+Here’s a high-level overview of how to use Isaac ROS VSLAM with a stereo camera.
+
+### 1. Prerequisites
+
+-   An NVIDIA Jetson or a workstation with an NVIDIA GPU.
+-   A calibrated stereo camera.
+-   Isaac ROS VSLAM and its dependencies installed.
+
+### 2. Launch the Camera Node
+
+Start the ROS 2 node for your stereo camera, which should publish synchronized left and right images.
+
+```bash
+ros2 launch stereo_camera_pkg stereo_camera.launch.py
+```
+
+### 3. Launch Isaac ROS VSLAM
+
+Launch the Isaac ROS VSLAM node. This node subscribes to the stereo image topics and publishes the robot's estimated pose and visualization markers.
+
+```bash
+ros2 launch isaac_ros_vslam isaac_ros_vslam_stereo.launch.py
+```
+
+### 4. Visualize the Output
+
+In RViz, you can visualize:
+-   The robot's estimated trajectory.
+-   The 3D map (as a point cloud or other markers).
+-   The camera feed.
+
+## Integrating with a Humanoid Robot
+
+For a humanoid robot, the output of Isaac ROS VSLAM can be used as the primary source of odometry for the robot's state estimation and navigation systems. The object detection capabilities can be used to identify objects for manipulation, and the Nav2 integration can be used for autonomous path planning and walking.
+
+## Next Steps
+
+With the ability to perform highly accurate localization and perception, the next logical step is to use this information for intelligent path planning and locomotion, enabling the humanoid robot to navigate complex environments and interact with objects. The following chapter will delve into the specifics of path planning for humanoid manipulation and locomotion.

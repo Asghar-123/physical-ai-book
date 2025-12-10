@@ -1,0 +1,21 @@
+# General ignores
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+.vscode/
+.idea/
+*.log
+.env*
+
+# Node.js / TypeScript ignores
+node_modules/
+dist/
+build/
+
+# Python ignores
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/

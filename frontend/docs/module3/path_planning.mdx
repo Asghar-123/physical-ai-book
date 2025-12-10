@@ -1,0 +1,89 @@
+---
+sidebar_position: 3
+title: Humanoid Path Planning
+---
+
+# Path Planning for Humanoid Locomotion and Manipulation
+
+Path planning for humanoid robots is a complex, multi-faceted problem that involves coordinating the movement of the entire body to achieve a goal, whether it's walking to a destination or manipulating an object. Unlike wheeled robots, humanoids have to deal with balance, contact forces, and a high number of degrees of freedom (DoF).
+
+## Challenges in Humanoid Path Planning
+
+-   **High Dimensionality**: Humanoid robots can have dozens of joints, making the configuration space for planning enormous.
+-   **Dynamic Stability**: The robot must maintain balance at all times, which involves controlling the Center of Mass (CoM) and Zero Moment Point (ZMP).
+-   **Contact Planning**: The planner must decide where and when to place the feet and hands, and how to distribute forces.
+-   **Collision Avoidance**: The planner must generate whole-body trajectories that avoid collisions with the environment and with the robot itself.
+
+## Path Planning for Locomotion
+
+Humanoid locomotion planning is typically broken down into several layers:
+
+### 1. High-Level Path Planning
+
+At the highest level, a 2D path planner like Nav2 can be used to find a path for the robot's base in the environment, avoiding obstacles. This is similar to how a wheeled robot would navigate.
+
+### 2. Footstep Planning
+
+Given the high-level path, a footstep planner determines a sequence of foot placements that will allow the robot to follow the path while maintaining stability. This involves considering the robot's kinematics, reachability, and stability constraints.
+
+### 3. Whole-Body Trajectory Optimization
+
+Once the footsteps are planned, a trajectory optimizer generates smooth, dynamically stable trajectories for all the joints of the robot. This optimizer takes into account the robot's full dynamics, joint limits, and contact forces. This is often the most computationally intensive part of the process.
+
+Popular tools and libraries for this include:
+-   **Trajectory Optimization Tool (TrajOpt)**
+-   **OpenSoT (Open Source whole-body Control and optimization for Robots)**
+
+## Path Planning for Manipulation
+
+Manipulation planning involves finding a trajectory for the robot's arm and hand to reach for an object, grasp it, and move it to a new location.
+
+### 1. Motion Planning with MoveIt
+
+**MoveIt** is the most widely used motion planning framework in ROS. It provides a comprehensive set of tools for:
+-   **Kinematics**: Forward and inverse kinematics solvers.
+-   **Motion Planning**: Algorithms like OMPL (Open Motion Planning Library) to find collision-free paths in high-dimensional spaces.
+-   **Collision Checking**: Environment and self-collision checking.
+-   **Grasping**: Integration with grasp generation libraries.
+
+For a humanoid robot, MoveIt can be configured to plan for one or both arms, while keeping the rest of the body static or accounting for its collision geometry.
+
+### 2. Whole-Body Manipulation
+
+For tasks that require coordinating locomotion and manipulation (e.g., walking while carrying an object), the problem becomes even more challenging. This requires a planner that can reason about the whole body, including the legs, arms, and torso, simultaneously. These planners often use advanced techniques like optimization-based control and model predictive control (MPC).
+
+## Example: Using MoveIt for Arm Manipulation
+
+Here’s a conceptual overview of using MoveIt for a humanoid arm:
+
+1.  **Configure MoveIt**: Create a MoveIt configuration package for your humanoid robot using the MoveIt Setup Assistant. This involves defining the planning groups (e.g., "left_arm", "right_arm"), specifying the kinematics solver, and setting up the collision matrix.
+
+2.  **Launch MoveIt**: Launch the MoveIt nodes, which will load the robot's URDF and configuration.
+
+3.  **Send a Goal**: From a Python or C++ node, define a goal pose for the end-effector (the hand) and send it to MoveIt.
+
+```python
+# Conceptual Python code for sending a goal to MoveIt
+import rclpy
+from moveit.planning import MoveItPy
+
+# Initialize rclpy and MoveItPy
+rclpy.init()
+robot = MoveItPy()
+
+# Get the planning component for the arm
+arm = robot.get_planning_component("left_arm")
+
+# Set a target pose
+target_pose = ... # A geometry_msgs.msg.PoseStamped message
+
+# Plan and execute
+arm.set_goal_state(pose_stamped_msg=target_pose)
+plan_and_execute_response = arm.plan_and_execute()
+```
+
+MoveIt will then find a collision-free trajectory for the arm joints and execute it on the robot (or in simulation).
+
+## Next Steps
+
+This chapter provides a high-level overview of the complex world of humanoid path planning. The next phase of the book will focus on a capstone project that brings together many of these concepts, integrating perception, planning, and action to create a Vision-Language-Action (VLA) pipeline.

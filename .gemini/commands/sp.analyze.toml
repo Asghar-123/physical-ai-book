@@ -1,0 +1,9 @@
+description = "Perform a non-destructive cross-artifact consistency and quality analysis across spec.md, plan.md, and tasks.md after task generation."
+post_run_command = "Create-PHR -Stage 'analyze' -Title 'Analyze specification, plan, and tasks for consistency'"
+run_command = ".specify/scripts/powershell/analyze-artifacts.ps1 $ARGUMENTS"
+include_context = true
+passthrough_arguments = true
+icon = "🧪"
+[ARGUMENTS]
+description = "Optional arguments to pass to the analysis script."
+type = "string"

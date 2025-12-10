@@ -1,0 +1,66 @@
+---
+sidebar_position: 1
+title: Hardware Buying Guide
+---
+
+# Hardware Buying Guide for Physical AI & Humanoid Robotics
+
+Building and experimenting with physical AI and humanoid robots requires specific hardware. This guide provides recommendations for workstations, development boards, and essential sensors to get you started.
+
+## Workstation Recommendations
+
+A powerful workstation is crucial for running simulations (Gazebo, Isaac Sim), training AI models, and compiling complex robotics software.
+
+### Key Components:
+
+-   **CPU**: High core count (Intel i7/i9, AMD Ryzen 7/9) for compiling large codebases and running multi-threaded simulations.
+-   **GPU**: NVIDIA RTX series (minimum RTX 3060, recommended RTX 4070 Ti or higher). NVIDIA GPUs are essential for Isaac Sim, Isaac ROS, and AI model training due to CUDA support.
+-   **RAM**: 32GB DDR4 (minimum), 64GB+ (recommended) for large simulations and data processing.
+-   **Storage**: 1TB NVMe SSD (minimum), 2TB+ (recommended) for fast access to datasets and system files.
+
+## Development Boards for Robots
+
+For deploying AI models and control algorithms directly onto robots, embedded development boards are used.
+
+### NVIDIA Jetson Platform:
+
+-   **NVIDIA Jetson Orin Nano / NX**: Excellent for entry-level to mid-range robotics projects. Offers good performance for running small to medium AI models and ROS 2 applications.
+    -   *Pros*: Compact, power-efficient, good GPU performance for its size.
+    -   *Cons*: Limited RAM compared to workstations.
+-   **NVIDIA Jetson AGX Orin**: For more demanding applications requiring higher AI inference and compute capabilities.
+    -   *Pros*: High performance, ideal for complex perception and navigation tasks.
+    -   *Cons*: Higher cost, larger form factor.
+
+## Essential Sensors
+
+### Cameras:
+
+-   **Intel RealSense Depth Cameras (D435i, D455)**: Industry standard for RGB-D data. Provides accurate depth information, essential for 3D perception, object detection, and SLAM.
+-   **Stereo Cameras**: For applications where depth perception is critical and an active IR projector might interfere or is not suitable.
+
+### LiDAR:
+
+-   **RPLIDAR A1/A2/A3 (2D LiDAR)**: Cost-effective options for 2D mapping and obstacle avoidance.
+-   **Velodyne Puck LITE (3D LiDAR)**: For more advanced 3D perception and mapping, though significantly more expensive.
+
+### IMU (Inertial Measurement Unit):
+
+-   Many development boards (like Jetson) have integrated IMUs.
+-   For external IMUs, consider robust industrial-grade sensors if high accuracy and reliability are critical for dynamic tasks like humanoid balancing.
+
+## Actuators and Motors
+
+-   **Dynamixel Servos (e.g., XL330, XM430, XW540 series)**: Popular in humanoid robotics for their precision, feedback capabilities (position, velocity, current), and easy integration with ROS 2.
+    -   *Considerations*: Torque, speed, and communication protocol (usually custom serial).
+
+## Networking
+
+-   **Gigabit Ethernet / Wi-Fi 6**: For high-bandwidth communication between robot components and your workstation, especially when streaming sensor data or deploying complex models.
+
+## Software Environment
+
+-   **Ubuntu 22.04 LTS**: Recommended operating system for ROS 2 development.
+-   **ROS 2 Humble / Iron**: Choose a stable ROS 2 distribution.
+-   **NVIDIA CUDA Toolkit & cuDNN**: Ensure these are installed and configured for GPU acceleration.
+
+This guide provides a starting point. Your specific hardware choices will depend on your project's scope, budget, and performance requirements.

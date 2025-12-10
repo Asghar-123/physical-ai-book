@@ -1,0 +1,145 @@
+---
+sidebar_position: 2
+title: Sensor Simulation
+---
+
+# Sensor Simulation: Replicating Perception
+
+Accurate sensor simulation is paramount for developing and testing robust robotic perception and navigation algorithms. Gazebo, in conjunction with ROS 2, provides powerful capabilities to simulate a wide array of sensors, generating data that closely mimics real-world sensor output. This allows for realistic development of algorithms without the need for physical hardware.
+
+## Types of Sensors and Their Simulation
+
+Robots rely on various sensors to understand their environment. Here, we focus on some of the most critical ones for humanoid robotics.
+
+### LiDAR (Light Detection and Ranging)
+
+**LiDAR** sensors measure distances to objects by illuminating them with laser light and measuring the reflection time. In simulation, LiDAR produces point cloud data, which is a set of data points in space, typically used for:
+-   **Mapping**: Creating 2D or 3D maps of the environment.
+-   **Localization**: Determining the robot's position within a known map.
+-   **Obstacle Detection and Avoidance**: Identifying objects in the robot's path.
+
+Gazebo simulates LiDAR by casting rays into the environment and reporting the distance to the first object intersected. Parameters like scan range, number of rays, and update rate can be configured.
+
+```xml
+<!-- Example: LiDAR sensor in URDF/XACRO -->
+<link name="laser_link">
+  <visual><geometry><cylinder radius="0.01" length="0.05"/></geometry></visual>
+</link>
+<joint name="laser_joint" type="fixed">
+  <parent link="base_link"/>
+  <child link="laser_link"/>
+  <origin xyz="0 0 0.2" rpy="0 0 0"/>
+</joint>
+
+<gazebo reference="laser_link">
+  <sensor name="laser_sensor" type="ray">
+    <pose>0 0 0 0 0 0</pose>
+    <visualize>true</visualize>
+    <update_rate>10</update_rate>
+    <ray>
+      <scan>
+        <horizontal>
+          <samples>720</samples>
+          <resolution>1</resolution>
+          <min_angle>-1.57</min_angle>
+          <max_angle>1.57</max_angle>
+        </horizontal>
+      </scan>
+      <range>
+        <min>0.1</min>
+        <max>10.0</max>
+        <resolution>0.01</resolution>
+      </range>
+    </ray>
+    <plugin name="laser_controller" filename="libgazebo_ros_ray_sensor.so">
+      <ros>true</ros>
+      <output_type>sensor_msgs/LaserScan</output_type>
+      <frame_name>laser_link</frame_name>
+    </plugin>
+  </sensor>
+</gazebo>
+```
+
+### Depth Cameras (e.g., Intel RealSense)
+
+**Depth cameras** provide per-pixel depth information in addition to color (RGB) images. This combined RGB-D data is invaluable for:
+-   **3D Reconstruction**: Building 3D models of objects or environments.
+-   **Object Recognition and Pose Estimation**: Identifying objects and determining their position and orientation in 3D space.
+-   **Human-Robot Interaction**: Understanding human gestures and movements.
+
+Gazebo simulates depth cameras by rendering the scene from the camera's perspective and calculating the distance to each visible surface. The `libgazebo_ros_depth_camera` plugin is commonly used for this, publishing `sensor_msgs/Image` (RGB), `sensor_msgs/Image` (depth), and `sensor_msgs/PointCloud2` topics.
+
+```xml
+<!-- Example: Depth camera sensor -->
+<link name="camera_link">...</link>
+<joint name="camera_joint" type="fixed">...</joint>
+
+<gazebo reference="camera_link">
+  <sensor type="depth" name="depth_camera">
+    <always_on>true</always_on>
+    <update_rate>30.0</update_rate>
+    <camera>
+      <horizontal_fov>1.047</horizontal_fov>
+      <image>
+        <width>640</width>
+        <height>480</height>
+        <format>R8G8B8</format>
+      </image>
+      <clip>
+        <near>0.1</near>
+        <far>10</far>
+      </clip>
+    </camera>
+    <plugin name="camera_controller" filename="libgazebo_ros_depth_camera.so">
+      <ros>true</ros>
+      <point_cloud_cutoff>0.5</point_cloud_cutoff>
+      <baseline>0.07</baseline>
+      <frame_name>camera_link</frame_name>
+      <output_frame_id>camera_depth_frame</output_frame_id>
+    </plugin>
+  </sensor>
+</gazebo>
+```
+
+### IMU (Inertial Measurement Unit)
+
+An **IMU** measures linear acceleration and angular velocity, and often includes magnetometers to estimate orientation (roll, pitch, yaw). This data is critical for:
+-   **Localization and Navigation**: Dead reckoning, complementing GPS or visual odometry.
+-   **Balancing and Stabilization**: For dynamic robots like humanoids.
+-   **Motion Tracking**: Understanding the robot's movement and orientation.
+
+Gazebo's `libgazebo_ros_imu_sensor` plugin simulates IMU output, publishing `sensor_msgs/Imu` messages.
+
+```xml
+<!-- Example: IMU sensor -->
+<link name="imu_link">...</link>
+<joint name="imu_joint" type="fixed">...</joint>
+
+<gazebo reference="imu_link">
+  <sensor name="imu_sensor" type="imu">
+    <always_on>true</always_on>
+    <update_rate>100.0</update_rate>
+    <imu>
+      <angular_velocity>
+        <x><noise type="gaussian"><mean>0.0</mean><stddev>2e-4</stddev></noise></x>
+        <y><noise type="gaussian"><mean>0.0</mean><stddev>2e-4</stddev></noise></y>
+        <z><noise type="gaussian"><mean>0.0</mean><stddev>2e-4</stddev></noise></z>
+      </angular_velocity>
+      <linear_acceleration>
+        <x><noise type="gaussian"><mean>0.0</mean><stddev>1.7e-2</stddev></noise></x>
+        <y><noise type="gaussian"><mean>0.0</mean><stddev>1.7e-2</stddev></noise></y>
+        <z><noise type="gaussian"><mean>0.0</mean><stddev>1.7e-2</stddev></noise></z>
+      </linear_acceleration>
+    </imu>
+    <plugin name="imu_controller" filename="libgazebo_ros_imu_sensor.so">
+      <ros>true</ros>
+      <frame_name>imu_link</frame_name>
+      <topic_name>imu/data</topic_name>
+    </plugin>
+  </sensor>
+</gazebo>
+```
+
+## Next Steps
+
+With various sensors simulated, the digital twin in Gazebo becomes a rich source of data. The next challenge is to visualize and interpret this data, often using external tools like Unity for high-fidelity rendering, which will be explored in the subsequent chapter.
