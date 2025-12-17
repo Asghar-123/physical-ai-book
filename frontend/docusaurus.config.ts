@@ -2,17 +2,25 @@ import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
+// Load environment variables from .env file
+require('dotenv').config();
+
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-    title: 'Physical AI & Humanoid Robotics',
-    tagline: 'An AI-Native Textbook',
-    favicon: 'img/favicon.ico',
-  
-    // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
-    future: {
-      v4: true, // Improve compatibility with the upcoming Docusaurus v4
-    },
+  title: 'Physical AI & Humanoid Robotics',
+  tagline: 'An AI-Native Textbook',
+  favicon: 'img/favicon.ico',
+
+  // Expose custom fields to client-side code
+  customFields: {
+    backendApiUrl: process.env.REACT_APP_BACKEND_API_URL,
+  },
+
+  // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
+  future: {
+    v4: true, // Improve compatibility with the upcoming Docusaurus v4
+  },
   
     // Set the production url of your site here
     url: 'https://physical-ai-book-six.vercel.app/', // TODO: Change this to your GitHub Pages URL
